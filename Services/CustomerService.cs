@@ -15,7 +15,20 @@ namespace ProvaPub.Services
 
         public CustomerList ListCustomers(int page)
         {
-            return new CustomerList() { HasNext = false, TotalCount = 10, Customers = _ctx.Customers.ToList() };
+            //Solução Parte2: o parâmetro referente a página ("page") não era utilizado nem existia lógica implementada.
+            var elementosPorPagina = 10;
+            var numeroAPular = (page - 1) * elementosPorPagina;
+            var listaClientes = _ctx.Customers
+                .Skip(numeroAPular)
+                .Take(elementosPorPagina)
+                .ToList();
+            var totalCount = listaClientes.Count;
+            var hasNext = ((numeroAPular) + totalCount) < _ctx.Customers.Count();
+
+            return new CustomerList() { HasNext = hasNext, TotalCount = totalCount, Customers = listaClientes };
+            /* O ideal é também adicionar um tratamento de exceção para caso não tenhamos elementos suficiente para uma página informada,
+			 * bem como o tratamento para parametros inválidos de "page".
+			 * Ex: página 10, mas não existem mais de 100 elementos ou página 0. */
         }
 
         public async Task<bool> CanPurchase(int customerId, decimal purchaseValue)

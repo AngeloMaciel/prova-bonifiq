@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProvaPub.Models;
+using ProvaPub.Models.PaymentMethodModels;
 using ProvaPub.Repository;
 using ProvaPub.Services;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ProvaPub.Controllers
 {
@@ -17,7 +19,13 @@ namespace ProvaPub.Controllers
 	public class Parte3Controller :  ControllerBase
 	{
 		[HttpGet("orders")]
-		public async Task<Order> PlaceOrder(string paymentMethod, decimal paymentValue, int customerId)
+        [ProducesResponseType(typeof(Order), 200)]
+        [ProducesResponseType(400)]
+        [SwaggerOperation("PlaceOrder")]
+        [SwaggerResponse(200, "Order placed successfully", typeof(Order))]
+        [SwaggerResponse(400, "Bad request")]
+        public async Task<Order> PlaceOrder([SwaggerParameter("Payment method: pix, creditcard, paypal")]
+        string paymentMethod, decimal paymentValue, int customerId)
 		{
 			return await new OrderService().PayOrder(paymentMethod, paymentValue, customerId);
 		}
